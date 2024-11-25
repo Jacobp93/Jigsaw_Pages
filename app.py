@@ -321,7 +321,8 @@ def dashboard_page():
         }])
         region_summary = pd.concat([region_summary, totals], ignore_index=True)
 
-        st.dataframe(region_summary)
+          # Display the table with full-width container
+    st.dataframe(region_summary, use_container_width=True)
 
     # Expander 2: SaaS Breakdown
     with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
