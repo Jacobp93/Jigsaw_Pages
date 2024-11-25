@@ -154,7 +154,7 @@ def find_nearest_locations(target_location, data, radius=10):
 
 # Page 2: User Search
 def user_search_page():
-    st.title("User Search")
+    st.title("Customer Portal Search")
     conn = establish_second_db_connection()
 
     school_name_input = st.text_input("Enter school name to search (leave empty if not used)")
