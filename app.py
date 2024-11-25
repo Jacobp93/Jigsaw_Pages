@@ -17,7 +17,7 @@ sql_database_2 = st.secrets["sql"]["SQL_DATABASE_2"]
 sql_uid = st.secrets["sql"]["SQL_UID"]
 sql_pass = st.secrets["sql"]["SQL_PASS"]
 
-# Extract API configuration
+# Access the API key from secrets.toml
 opencage_api_key = st.secrets["api"]["OPENCAGE_API_KEY"]
 
 # Extract connection driver
