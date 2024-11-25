@@ -315,29 +315,37 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     st.plotly_chart(fig_count_region)
 
 
-    if df.empty:
-        st.warning("The DataFrame is empty or not loaded properly!")
-    else:
-        with st.expander("3. Summary Table", expanded=False):
-            region_summary = df.groupby("England_Region").apply(
-            lambda group: pd.Series({
-            # Total SaaS: Count rows where either PSHE or RE is SaaS (no double counting, excluding blanks)
+    with st.expander("3. Summary Table", expanded=False):
+    # Group by region and compute metrics
+        region_summary = df.groupby("England_Region").apply(
+        lambda group: pd.Series({
             "Total_SaaS": ((group["PSHE_Customer_Type"].fillna("") == "SaaS") | 
-                            (group["RE_Customer_Type"].fillna("") == "SaaS")).sum(),
-
-            # Total Legacy: Count rows where either PSHE or RE is Legacy (no double counting, excluding blanks)
+                           (group["RE_Customer_Type"].fillna("") == "SaaS")).sum(),
             "Total_Legacy": ((group["PSHE_Customer_Type"].fillna("") == "Legacy") | 
-                            (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
-
-            # Separate counts for PSHE SaaS and Legacy (excluding blanks)
+                             (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
             "PSHE_SaaS": (group["PSHE_Customer_Type"].fillna("") == "SaaS").sum(),
             "PSHE_Legacy": (group["PSHE_Customer_Type"].fillna("") == "Legacy").sum(),
-
-            # Separate counts for RE SaaS and Legacy (excluding blanks)
             "RE_SaaS": (group["RE_Customer_Type"].fillna("") == "SaaS").sum(),
             "RE_Legacy": (group["RE_Customer_Type"].fillna("") == "Legacy").sum(),
+        })
+    ).reset_index()
+
+    # Display the summary table
+    st.subheader("Summary Table by Region")
+    st.dataframe(
+        region_summary.style
+            .set_properties(**{
+                'text-align': 'center',
+                'font-size': '9pt',
+                'padding': '0px'
             })
-        ).reset_index()
+            .set_table_styles([
+                {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}
+            ]),
+        use_container_width=True,
+        hide_index=True
+    )
+
         
 # Additional Table: PSHE and RE SaaS Breakdown
     with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
