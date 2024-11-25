@@ -314,10 +314,10 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     )
     st.plotly_chart(fig_count_region)
 
-# Assuming 'df' is your DataFrame
-with st.expander("3. Summary Table and Subplots"):
+   # Assuming 'df' is your DataFrame
+    with st.expander("3. Summary Table and Subplots"):
     # Calculate Total SaaS and Total Legacy per Region
-    region_summary = df.groupby("England_Region").agg(
+        region_summary = df.groupby("England_Region").agg(
         Total_SaaS=("PSHE_Customer_Type", lambda x: (x == "SaaS").sum()),
         Total_Legacy=("PSHE_Customer_Type", lambda x: (x == "Legacy").sum())
     ).reset_index()
@@ -355,6 +355,7 @@ with st.expander("3. Summary Table and Subplots"):
     )
     fig.update_layout(height=400, title_text="Customer Type Distribution by Region", showlegend=False)
     st.plotly_chart(fig)
+
 
     # Additional Insights and Visuals
     with st.expander("Additional Insights", expanded=False):
