@@ -314,8 +314,8 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     )
     st.plotly_chart(fig_count_region)
 
-   # Assuming 'df' is your DataFrame
-    with st.expander("3. Summary Table and Subplots",expanded=False):
+# Assuming 'df' is your DataFrame
+    with st.expander("3. Summary Table and Subplots", expanded=False):
     # Calculate Total SaaS and Total Legacy per Region
         region_summary = df.groupby("England_Region").agg(
         Total_SaaS=("PSHE_Customer_Type", lambda x: (x == "SaaS").sum()),
@@ -324,7 +324,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 
     # Append a Totals Row to the Summary Table
     totals = pd.DataFrame([["Total", region_summary["Total_SaaS"].sum(), region_summary["Total_Legacy"].sum()]],
-                          columns=region_summary.columns)
+                        columns=region_summary.columns)
     region_summary = pd.concat([region_summary, totals], ignore_index=True)
 
     # Display the Summary Table with compact styling
