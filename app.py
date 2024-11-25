@@ -315,9 +315,9 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     st.plotly_chart(fig_count_region)
 
 # Assuming 'df' is your DataFrame
-with st.expander("3. Summary Table", expanded=False):
+    with st.expander("3. Summary Table", expanded=False):
     # Group by region and compute metrics
-    region_summary = df.groupby("England_Region").apply(
+        region_summary = df.groupby("England_Region").apply(
         lambda group: pd.Series({
             # Total SaaS: Count rows where either PSHE or RE is SaaS (no double counting)
             "Total_SaaS": ((group["PSHE_Customer_Type"] == "SaaS") | (group["RE_Customer_Type"] == "SaaS")).sum(),
