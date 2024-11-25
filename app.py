@@ -316,29 +316,27 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 
 # Assuming 'df' is your DataFrame
     with st.expander("3. Summary Table", expanded=False):
-        region_summary = df.groupby("England_Region").agg(
-        Total_SaaS=("PSHE_Customer_Type", lambda x: (x == "SaaS").sum()),
-        Total_Legacy=("PSHE_Customer_Type", lambda x: (x == "Legacy").sum())
-    ).reset_index()
-
-    # Append a Totals Row to the Summary Table
-    totals = pd.DataFrame([["Total", region_summary["Total_SaaS"].sum(), region_summary["Total_Legacy"].sum()]],
-                        columns=region_summary.columns)
-    region_summary = pd.concat([region_summary, totals], ignore_index=True)
-
-# Assuming 'df' is your DataFrame
-    with st.expander("3. Summary Table", expanded=False):
+    # Group by region and compute metrics
         region_summary = df.groupby("England_Region").apply(
-    lambda group: pd.Series({
-        "Total_SaaS": ((group["PSHE_Customer_Type"] == "SaaS") | (group["RE_Customer_Type"] == "SaaS")).sum(),
-        "Total_Legacy": ((group["PSHE_Customer_Type"] == "Legacy") | (group["RE_Customer_Type"] == "Legacy")).sum(),
-        "PSHE_Legacy": (group["PSHE_Customer_Type"] == "Legacy").sum(),
-        "PSHE_SaaS": (group["PSHE_Customer_Type"] == "SaaS").sum(),        
-        "PSHE_Legacy": (group["PSHE_Customer_Type"] == "Legacy").sum(),
-        "RE_SaaS": (group["RE_Customer_Type"] == "SaaS").sum(),
-        "RE_Legacy": (group["RE_Customer_Type"] == "Legacy").sum(),
-    })
+        lambda group: pd.Series({
+            # Total SaaS: Count rows where either PSHE or RE is SaaS (no double counting)
+            "Total_SaaS": ((group["PSHE_Customer_Type"] == "SaaS") | (group["RE_Customer_Type"] == "SaaS")).sum(),
+
+            # Total Legacy: Count rows where either PSHE or RE is Legacy (no double counting)
+            "Total_Legacy": ((group["PSHE_Customer_Type"] == "Legacy") | (group["RE_Customer_Type"] == "Legacy")).sum(),
+
+            # Separate counts for PSHE SaaS and Legacy
+            "PSHE_SaaS": (group["PSHE_Customer_Type"] == "SaaS").sum(),
+            "PSHE_Legacy": (group["PSHE_Customer_Type"] == "Legacy").sum(),
+
+            # Separate counts for RE SaaS and Legacy
+            "RE_SaaS": (group["RE_Customer_Type"] == "SaaS").sum(),
+            "RE_Legacy": (group["RE_Customer_Type"] == "Legacy").sum(),
+        })
     ).reset_index()
+
+
+
 
 # Append a Totals Row to the Summary Table
     totals = pd.DataFrame([{
@@ -351,6 +349,23 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     "RE_Legacy": region_summary["RE_Legacy"].sum(),
     }])
     region_summary = pd.concat([region_summary, totals], ignore_index=True)
+    
+    # Display the Summary Table with compact styling
+    st.subheader("Summary Table by Region")
+    st.dataframe(
+        region_summary.style
+            .set_properties(**{
+                'text-align': 'center',
+                'font-size': '9pt',      # Smaller font size for compactness
+                'padding': '0px'         # Remove padding for a compact look
+            })
+            .set_table_styles([
+                {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
+            ]),
+        use_container_width=True,
+        hide_index=True  # Hide the index column for a cleaner appearance
+    )
+    
 
 # Display the Summary Table with compact styling
     st.subheader("Summary Table by Region")
