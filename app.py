@@ -388,7 +388,7 @@ def dashboard_page():
             title_text="Customer Type Distribution by Region with PSHE and RE Breakdown",
             showlegend=True
         )
-        st.plotly_chart(fig, use_container_width=False)
+        st.plotly_chart(fig, use_container_width=True)
 
 
 
