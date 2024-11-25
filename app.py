@@ -339,9 +339,9 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
         
 
 # Additional Table: PSHE and RE SaaS Breakdown
-with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
+    with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
     # Group by region and compute metrics for specific criteria
-    saas_summary = df.groupby("England_Region").apply(
+        saas_summary = df.groupby("England_Region").apply(
         lambda group: pd.Series({
             # Customers with "SaaS" in both PSHE and RE
             "Has_Both_PSHE_and_RE": (
@@ -373,22 +373,6 @@ with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
     st.subheader("PSHE and RE SaaS Breakdown by Region")
     st.dataframe(
         saas_summary.style
-            .set_properties(**{
-                'text-align': 'center',
-                'font-size': '9pt',      # Smaller font size for compactness
-                'padding': '0px'         # Remove padding for a compact look
-            })
-            .set_table_styles([
-                {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
-            ]),
-        use_container_width=True,
-        hide_index=True  # Hide the index column for a cleaner appearance
-    )
-
-    # Display the Additional Table with compact styling
-    st.subheader("PSHE and RE Relationship by Region")
-    st.dataframe(
-        pshe_re_summary.style
             .set_properties(**{
                 'text-align': 'center',
                 'font-size': '9pt',      # Smaller font size for compactness
