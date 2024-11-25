@@ -400,7 +400,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 
 # Update layout for the subplots
     fig.update_layout(
-    height=600, width=1000, 
+    height=500, width=900, 
     title_text="Customer Type Distribution by Region with PSHE and RE Breakdown",
     showlegend=True
     )
