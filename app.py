@@ -397,18 +397,6 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     row=2, col=2
     )
 
-# Total SaaS by Region
-    fig.add_trace(
-    go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_SaaS"][:-1], name="Total SaaS"),
-    row=1, col=1
-    )
-
-# Total Legacy by Region
-    fig.add_trace(
-    go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_Legacy"][:-1], name="Total Legacy"),
-    row=1, col=2
-    )
-
 
 
 # Update layout for the subplots
