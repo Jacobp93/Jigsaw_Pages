@@ -278,6 +278,21 @@ def dashboard_page():
 
     # Ensure `filtered_data` is accessible to expanders
     st.metric("Total Customers", len(filtered_data))
+    
+    
+    # 2. Customer Count by Region Bar Chart
+    customer_count_by_region = filtered_data['England_Region'].value_counts()
+    fig_count_region = px.bar(
+        customer_count_by_region,
+        x=customer_count_by_region.index,
+        y=customer_count_by_region.values,
+        title="Customer Count by Region",
+        labels={"x": "Region", "y": "Customer Count"}
+    )
+    st.plotly_chart(fig_count_region)
+
+
+
 
     # Expander 1: Summary Table
     with st.expander("3. Summary Table", expanded=False):
