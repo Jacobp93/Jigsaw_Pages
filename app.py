@@ -316,7 +316,6 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 
 # Assuming 'df' is your DataFrame
     with st.expander("3. Summary Table and Subplots", expanded=False):
-    # Calculate Total SaaS and Total Legacy per Region
         region_summary = df.groupby("England_Region").agg(
         Total_SaaS=("PSHE_Customer_Type", lambda x: (x == "SaaS").sum()),
         Total_Legacy=("PSHE_Customer_Type", lambda x: (x == "Legacy").sum())
@@ -327,34 +326,49 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
                         columns=region_summary.columns)
     region_summary = pd.concat([region_summary, totals], ignore_index=True)
 
-    # Display the Summary Table with compact styling
-    st.subheader("Summary Table by Region")
-    st.dataframe(
-        region_summary.style
-            .set_properties(**{
-                'text-align': 'center',
-                'font-size': '9pt',      # Smaller font size for compactness
-                'padding': '0px'         # Remove padding for a compact look
-            })
-            .set_table_styles([
-                {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
-            ]),
-        use_container_width=True,
-        hide_index=True  # Hide the index column for a cleaner appearance
-    )
+# Assuming 'df' is your DataFrame
+    with st.expander("3. Summary Table and Subplots", expanded=False):
+        if not df.empty:
+        # Calculate Total SaaS and Total Legacy per Region
+            region_summary = df.groupby("England_Region").agg(
+            Total_SaaS=("PSHE_Customer_Type", lambda x: (x == "SaaS").sum()),
+            Total_Legacy=("PSHE_Customer_Type", lambda x: (x == "Legacy").sum())
+        ).reset_index()
 
-    # Subplots for Total SaaS and Total Legacy by Region
-    fig = make_subplots(rows=1, cols=2, subplot_titles=("Total SaaS by Region", "Total Legacy by Region"))
-    fig.add_trace(
-        go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_SaaS"][:-1], name="Total SaaS"),
-        row=1, col=1
-    )
-    fig.add_trace(
-        go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_Legacy"][:-1], name="Total Legacy"),
-        row=1, col=2
-    )
-    fig.update_layout(height=400, title_text="Customer Type Distribution by Region", showlegend=False)
-    st.plotly_chart(fig)
+        # Append a Totals Row to the Summary Table
+        totals = pd.DataFrame([["Total", region_summary["Total_SaaS"].sum(), region_summary["Total_Legacy"].sum()]],
+         columns=region_summary.columns)
+        region_summary = pd.concat([region_summary, totals], ignore_index=True)
+
+        # Display the Summary Table with compact styling
+        st.subheader("Summary Table by Region")
+        st.dataframe(
+            region_summary.style
+                .set_properties(**{
+                    'text-align': 'center',
+                    'font-size': '9pt',      # Smaller font size for compactness
+                    'padding': '0px'         # Remove padding for a compact look
+                })
+                .set_table_styles([
+                    {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
+                ]),
+            use_container_width=True,
+            hide_index=True  # Hide the index column for a cleaner appearance
+        )
+
+        # Subplots for Total SaaS and Total Legacy by Region
+        fig = make_subplots(rows=1, cols=2, subplot_titles=("Total SaaS by Region", "Total Legacy by Region"))
+        fig.add_trace(
+            go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_SaaS"][:-1], name="Total SaaS"),
+            row=1, col=1
+        )
+        fig.add_trace(
+            go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_Legacy"][:-1], name="Total Legacy"),
+            row=1, col=2
+        )
+        fig.update_layout(height=400, title_text="Customer Type Distribution by Region", showlegend=False)
+        st.plotly_chart(fig)
+
 
 
     # Additional Insights and Visuals
