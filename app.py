@@ -10,17 +10,17 @@ import plotly.graph_objects as go
 import requests 
 
 # Extract SQL configuration
-sql_server = ["sql"]["SQL_SERVER"]
-sql_database_1 = ["sql"]["SQL_DATABASE_1"]
-sql_database_2 = ["sql"]["SQL_DATABASE_2"]
-sql_uid = ["sql"]["SQL_UID"]
-sql_pass = ["sql"]["SQL_PASS"]
+sql_server = st.secrets["sql"]["SQL_SERVER"]
+sql_database_1 = st.secrets["sql"]["SQL_DATABASE_1"]
+sql_database_2 = st.secrets["sql"]["SQL_DATABASE_2"]
+sql_uid = st.secrets["sql"]["SQL_UID"]
+sql_pass = st.secrets["sql"]["SQL_PASS"]
 
 # Extract API configuration
-opencage_api_key = ["api"]["OPENCAGE_API_KEY"]
+opencage_api_key = st.secrets["api"]["OPENCAGE_API_KEY"]
 
 # Extract connection driver
-sql_driver = ["connection"]["driver"]
+sql_driver = st.secrets["connection"]["driver"]
 
 # Define connection functions for two different databases
 def establish_first_db_connection():
