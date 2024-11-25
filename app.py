@@ -328,46 +328,95 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 
 # Assuming 'df' is your DataFrame
     with st.expander("3. Summary Table", expanded=False):
-        if not df.empty:
-        # Calculate Total SaaS and Total Legacy per Region
-            region_summary = df.groupby("England_Region").agg(
-            Total_SaaS=("PSHE_Customer_Type", lambda x: (x == "SaaS").sum()),
-            Total_Legacy=("PSHE_Customer_Type", lambda x: (x == "Legacy").sum())
-        ).reset_index()
+        region_summary = df.groupby("England_Region").apply(
+    lambda group: pd.Series({
+        "Total_SaaS": ((group["PSHE_Customer_Type"] == "SaaS") | (group["RE_Customer_Type"] == "SaaS")).sum(),
+        "PSHE_SaaS": (group["PSHE_Customer_Type"] == "SaaS").sum(),
+        "RE_SaaS": (group["RE_Customer_Type"] == "SaaS").sum(),
+        "Total_Legacy": ((group["PSHE_Customer_Type"] == "Legacy") | (group["RE_Customer_Type"] == "Legacy")).sum(),
+        "PSHE_Legacy": (group["PSHE_Customer_Type"] == "Legacy").sum(),
+        "RE_Legacy": (group["RE_Customer_Type"] == "Legacy").sum(),
+    })
+    ).reset_index()
 
-        # Append a Totals Row to the Summary Table
-        totals = pd.DataFrame([["Total", region_summary["Total_SaaS"].sum(), region_summary["Total_Legacy"].sum()]],
-         columns=region_summary.columns)
-        region_summary = pd.concat([region_summary, totals], ignore_index=True)
+# Append a Totals Row to the Summary Table
+    totals = pd.DataFrame([{
+    "England_Region": "Total",
+    "Total_SaaS": region_summary["Total_SaaS"].sum(),
+    "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
+    "RE_SaaS": region_summary["RE_SaaS"].sum(),
+    "Total_Legacy": region_summary["Total_Legacy"].sum(),
+    "PSHE_Legacy": region_summary["PSHE_Legacy"].sum(),
+    "RE_Legacy": region_summary["RE_Legacy"].sum(),
+    }])
+    region_summary = pd.concat([region_summary, totals], ignore_index=True)
 
-        # Display the Summary Table with compact styling
-        st.subheader("Summary Table by Region")
-        st.dataframe(
-            region_summary.style
-                .set_properties(**{
-                    'text-align': 'center',
-                    'font-size': '9pt',      # Smaller font size for compactness
-                    'padding': '0px'         # Remove padding for a compact look
-                })
-                .set_table_styles([
-                    {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
-                ]),
-            use_container_width=True,
-            hide_index=True  # Hide the index column for a cleaner appearance
-        )
+# Display the Summary Table with compact styling
+    st.subheader("Summary Table by Region")
+    st.dataframe(
+    region_summary.style
+        .set_properties(**{
+            'text-align': 'center',
+            'font-size': '9pt',      # Smaller font size for compactness
+            'padding': '0px'         # Remove padding for a compact look
+        })
+        .set_table_styles([
+            {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
+        ]),
+    use_container_width=True,
+    hide_index=True  # Hide the index column for a cleaner appearance
+    )
 
-        # Subplots for Total SaaS and Total Legacy by Region
-        fig = make_subplots(rows=1, cols=2, subplot_titles=("Total SaaS by Region", "Total Legacy by Region"))
-        fig.add_trace(
-            go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_SaaS"][:-1], name="Total SaaS"),
-            row=1, col=1
-        )
-        fig.add_trace(
-            go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_Legacy"][:-1], name="Total Legacy"),
-            row=1, col=2
-        )
-        fig.update_layout(height=400, title_text="Customer Type Distribution by Region", showlegend=False)
-        st.plotly_chart(fig)
+# Subplots for Total SaaS and Total Legacy by Region with PSHE and RE breakdowns
+    fig = make_subplots(
+    rows=2, cols=2,
+    subplot_titles=(
+        "Total SaaS by Region", "Total Legacy by Region",
+        "PSHE vs RE SaaS Breakdown", "PSHE vs RE Legacy Breakdown"
+    )
+    )
+
+# Total SaaS by Region
+    fig.add_trace(
+    go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_SaaS"][:-1], name="Total SaaS"),
+    row=1, col=1
+    )
+
+# Total Legacy by Region
+    fig.add_trace(
+    go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["Total_Legacy"][:-1], name="Total Legacy"),
+    row=1, col=2
+    )
+
+# PSHE vs RE SaaS Breakdown
+    fig.add_trace(
+    go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["RE_Legacy"][:-1], name="RE Legacy"),
+    row=2, col=1
+    )
+    fig.add_trace(
+    go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["RE_SaaS"][:-1], name="RE SaaS"),
+    row=2, col=1
+    )
+
+# PSHE vs RE Legacy Breakdown
+    fig.add_trace(
+    go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["PSHE_Legacy"][:-1], name="PSHE Legacy"),
+    row=2, col=2
+    )
+    fig.add_trace(
+    go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["PSHE_SaaS"][:-1], name="PSHE SaaS"),
+    row=2, col=2
+    )
+
+# Update layout for the subplots
+    fig.update_layout(
+    height=600, width=1000, 
+    title_text="Customer Type Distribution by Region with PSHE and RE Breakdown",
+    showlegend=True
+    )
+
+# Display the chart
+    st.plotly_chart(fig)
 
 
 
