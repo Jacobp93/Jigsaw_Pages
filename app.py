@@ -371,7 +371,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     fig = make_subplots(
     rows=2, cols=2,
     subplot_titles=(
-        "RE SaaS vs RE Legacy Breakdown" , "PSHE SaaS vs PSHE Legacy"
+        "RE SaaS vs RE Legacy" , "PSHE SaaS vs PSHE Legacy" 
     )
     )
 
@@ -379,21 +379,21 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 # PSHE vs RE SaaS Breakdown
     fig.add_trace(
     go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["RE_Legacy"][:-1], name="RE Legacy"),
-    row=2, col=1
+    row=1, col=1
     )
     fig.add_trace(
     go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["RE_SaaS"][:-1], name="RE SaaS"),
-    row=2, col=1
+    row=1, col=1
     )
 
 # PSHE vs RE Legacy Breakdown
     fig.add_trace(
     go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["PSHE_Legacy"][:-1], name="PSHE Legacy"),
-    row=2, col=2
+    row=1, col=2
     )
     fig.add_trace(
     go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["PSHE_SaaS"][:-1], name="PSHE SaaS"),
-    row=2, col=2
+    row=1, col=2
     )
 
 
