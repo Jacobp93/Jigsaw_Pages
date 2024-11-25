@@ -343,10 +343,10 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     totals = pd.DataFrame([{
     "England_Region": "Total",
     "Total_SaaS": region_summary["Total_SaaS"].sum(),
-    "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
-    "RE_SaaS": region_summary["RE_SaaS"].sum(),
     "Total_Legacy": region_summary["Total_Legacy"].sum(),
+    "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
     "PSHE_Legacy": region_summary["PSHE_Legacy"].sum(),
+    "RE_SaaS": region_summary["RE_SaaS"].sum(),
     "RE_Legacy": region_summary["RE_Legacy"].sum(),
     }])
     region_summary = pd.concat([region_summary, totals], ignore_index=True)
