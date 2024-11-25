@@ -402,10 +402,8 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     height=500,  # Adjust chart height
     width=900,   # Adjust chart width
     title_text="Customer Type Distribution by Region with PSHE and RE Breakdown",
-    showlegend=True,
-    margin=dict(l=20, r=20, t=50, b=20)  # Minimize margins: left, right, top, bottom
+    showlegend=True
     )
-
 
 
     st.plotly_chart(fig, use_container_width=True)
