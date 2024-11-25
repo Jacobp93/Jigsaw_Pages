@@ -341,13 +341,13 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 
 # Append a Totals Row to the Summary Table
     totals = pd.DataFrame([{
-    "England_Region": "Total",
-    "Total_SaaS": region_summary["Total_SaaS"].sum(),
-    "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
-    "RE_SaaS": region_summary["RE_SaaS"].sum(),
-    "Total_Legacy": region_summary["Total_Legacy"].sum(),
-    "PSHE_Legacy": region_summary["PSHE_Legacy"].sum(),
-    "RE_Legacy": region_summary["RE_Legacy"].sum(),
+    "England Region": "Total",
+    "Total SaaS": region_summary["Total_SaaS"].sum(),
+    "Total Legacy": region_summary["Total_Legacy"].sum(),
+    "PSHE SaaS": region_summary["PSHE_SaaS"].sum(),
+    "PSHE Legacy": region_summary["PSHE_Legacy"].sum(),
+    "RE SaaS": region_summary["RE_SaaS"].sum(),
+    "RE Legacy": region_summary["RE_Legacy"].sum()
     }])
     region_summary = pd.concat([region_summary, totals], ignore_index=True)
 
