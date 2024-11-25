@@ -22,19 +22,16 @@ opencage_api_key = st.secrets["api"]["OPENCAGE_API_KEY"]
 # Extract connection driver
 sql_driver = st.secrets["connection"]["driver"]
 
-import streamlit as st
-import pyodbc as db
-
 # Define connection functions for two different databases
-def establish_first_db_connection(driver, SQL_SERVER, SQL_DATABASE_1, SQL_UID, SQL_PASS):
+def establish_first_db_connection():
     """Establish a connection to the first database."""
     try:
         conn = db.connect(
-            f"DRIVER={{{driver}}};"
-            f"SERVER={SQL_SERVER};"
-            f"DATABASE={SQL_DATABASE_1};"
-            f"UID={SQL_UID};"
-            f"PWD={SQL_PASS};"
+            f"DRIVER={{{sql_driver}}};"
+            f"SERVER={sql_server};"
+            f"DATABASE={sql_database_1};"
+            f"UID={sql_uid};"
+            f"PWD={sql_pass};"
             "Trusted_Connection=no;"
         )
         st.success("Successfully connected to the first database!")
@@ -43,15 +40,15 @@ def establish_first_db_connection(driver, SQL_SERVER, SQL_DATABASE_1, SQL_UID, S
         st.error(f"Error connecting to the first database: {e}")
         st.stop()
 
-def establish_second_db_connection(driver, SQL_SERVER, SQL_DATABASE_2, SQL_UID, SQL_PASS):
+def establish_second_db_connection():
     """Establish a connection to the second database."""
     try:
         conn = db.connect(
-            f"DRIVER={{{driver}}};"
-            f"SERVER={SQL_SERVER};"
-            f"DATABASE={SQL_DATABASE_2};"
-            f"UID={SQL_UID};"
-            f"PWD={SQL_PASS};"
+            f"DRIVER={{{sql_driver}}};"
+            f"SERVER={sql_server};"
+            f"DATABASE={sql_database_2};"
+            f"UID={sql_uid};"
+            f"PWD={sql_pass};"
             "Trusted_Connection=no;"
         )
         st.success("Successfully connected to the second database!")
@@ -59,6 +56,7 @@ def establish_second_db_connection(driver, SQL_SERVER, SQL_DATABASE_2, SQL_UID, 
     except db.Error as e:
         st.error(f"Error connecting to the second database: {e}")
         st.stop()
+
 
 # Page 1: School Nearest Neighbor Finder
 def school_nearest_neighbor_page():
