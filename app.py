@@ -35,7 +35,7 @@ def establish_first_db_connection():
             f"PWD={sql_pass};"
             "Trusted_Connection=no;"
         )
-        st.success("Successfully connected to the first database!")
+        st.success("Connected")
         return conn
     except db.Error as e:
         st.error(f"Error connecting to the first database: {e}")
@@ -52,7 +52,7 @@ def establish_second_db_connection():
             f"PWD={sql_pass};"
             "Trusted_Connection=no;"
         )
-        st.success("Successfully connected to the second database!")
+        st.success("connected")
         return conn
     except db.Error as e:
         st.error(f"Error connecting to the second database: {e}")
@@ -315,7 +315,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     st.plotly_chart(fig_count_region)
 
 # Assuming 'df' is your DataFrame
-    with st.expander("3. Summary Table and Subplots", expanded=False):
+    with st.expander("3. Summary Table", expanded=False):
         region_summary = df.groupby("England_Region").agg(
         Total_SaaS=("PSHE_Customer_Type", lambda x: (x == "SaaS").sum()),
         Total_Legacy=("PSHE_Customer_Type", lambda x: (x == "Legacy").sum())
@@ -327,7 +327,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     region_summary = pd.concat([region_summary, totals], ignore_index=True)
 
 # Assuming 'df' is your DataFrame
-    with st.expander("3. Summary Table and Subplots", expanded=False):
+    with st.expander("3. Summary Table", expanded=False):
         if not df.empty:
         # Calculate Total SaaS and Total Legacy per Region
             region_summary = df.groupby("England_Region").agg(
