@@ -343,17 +343,17 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     # Group by region and compute metrics for specific criteria
         pshe_re_summary = df.groupby("England_Region").apply(
         lambda group: pd.Series({
-            # Count customers that have both PSHE and RE (any type)
+            # Customers with both PSHE and RE populated (no overlap with other metrics)
             "Has_Both_PSHE_and_RE": (
                 group["PSHE_Customer_Type"].notna() & group["RE_Customer_Type"].notna()
             ).sum(),
 
-            # Count customers with only PSHE SaaS and no RE
+            # Customers with PSHE SaaS but no RE populated
             "PSHE_SaaS_Only": (
                 (group["PSHE_Customer_Type"] == "SaaS") & group["RE_Customer_Type"].isna()
             ).sum(),
 
-            # Count customers with any RE type but no PSHE
+            # Customers with RE populated but no PSHE populated
             "RE_Only": (
                 group["RE_Customer_Type"].notna() & group["PSHE_Customer_Type"].isna()
             ).sum(),
@@ -368,6 +368,23 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
         "RE_Only": pshe_re_summary["RE_Only"].sum(),
     }])
     pshe_re_summary = pd.concat([pshe_re_summary, totals], ignore_index=True)
+
+    # Display the Additional Table with compact styling
+    st.subheader("PSHE and RE Relationship by Region")
+    st.dataframe(
+        pshe_re_summary.style
+            .set_properties(**{
+                'text-align': 'center',
+                'font-size': '9pt',      # Smaller font size for compactness
+                'padding': '0px'         # Remove padding for a compact look
+            })
+            .set_table_styles([
+                {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
+            ]),
+        use_container_width=True,
+        hide_index=True  # Hide the index column for a cleaner appearance
+    )
+
 
     # Display the Additional Table with compact styling
     st.subheader("PSHE and RE Relationship by Region")
