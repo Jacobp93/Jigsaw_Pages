@@ -19,16 +19,6 @@ sql_pass = st.secrets["sql"]["SQL_PASS"]
 # Extract API configuration
 opencage_api_key = st.secrets["api"]["OPENCAGE_API_KEY"]
 
-api_key = opencage_api_key  # Use the same key you're passing to the geolocator
-url = f"https://api.opencagedata.com/geocode/v1/json?q=SW1A+1AA&key={api_key}"  # Example postcode
-response = requests.get(url)
-
-st.write(f"Status Code: {response.status_code}")
-st.write(response.json())
-
-
-st.write(f"OpenCage API Key: {opencage_api_key}")
-
 # Extract connection driver
 sql_driver = st.secrets["connection"]["driver"]
 
