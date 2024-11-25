@@ -330,7 +330,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     with st.expander("3. Summary Table", expanded=False):
         region_summary = df.groupby("England_Region").apply(
     lambda group: pd.Series({
-        "Total SaaS": ((group["PSHE_Customer_Type"] == "SaaS") | (group["RE_Customer_Type"] == "SaaS")).sum(),
+        "Total_SaaS": ((group["PSHE_Customer_Type"] == "SaaS") | (group["RE_Customer_Type"] == "SaaS")).sum(),
         "Total_Legacy": ((group["PSHE_Customer_Type"] == "Legacy") | (group["RE_Customer_Type"] == "Legacy")).sum(),
         "PSHE_Legacy": (group["PSHE_Customer_Type"] == "Legacy").sum(),
         "PSHE_SaaS": (group["PSHE_Customer_Type"] == "SaaS").sum(),        
