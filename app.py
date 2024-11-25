@@ -338,41 +338,41 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     ).reset_index()
         
 
-# Additional Table: PSHE and RE Relationship
-    with st.expander("4. PSHE and RE Relationship Table", expanded=False):
+# Additional Table: PSHE and RE SaaS Breakdown
+with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
     # Group by region and compute metrics for specific criteria
-        pshe_re_summary = df.groupby("England_Region").apply(
+    saas_summary = df.groupby("England_Region").apply(
         lambda group: pd.Series({
-            # Customers with both PSHE and RE populated (no overlap with other metrics)
+            # Customers with "SaaS" in both PSHE and RE
             "Has_Both_PSHE_and_RE": (
-                group["PSHE_Customer_Type"].notna() & group["RE_Customer_Type"].notna()
+                (group["PSHE_Customer_Type"] == "SaaS") & (group["RE_Customer_Type"] == "SaaS")
             ).sum(),
 
-            # Customers with PSHE SaaS but no RE populated
+            # Customers with "SaaS" only in PSHE (and no RE)
             "PSHE_SaaS_Only": (
                 (group["PSHE_Customer_Type"] == "SaaS") & group["RE_Customer_Type"].isna()
             ).sum(),
 
-            # Customers with RE populated but no PSHE populated
-            "RE_Only": (
-                group["RE_Customer_Type"].notna() & group["PSHE_Customer_Type"].isna()
+            # Customers with "SaaS" only in RE (and no PSHE)
+            "RE_SaaS_Only": (
+                (group["RE_Customer_Type"] == "SaaS") & group["PSHE_Customer_Type"].isna()
             ).sum(),
         })
     ).reset_index()
 
-    # Append a Totals Row to the Additional Table
+    # Append a Totals Row to the SaaS Breakdown Table
     totals = pd.DataFrame([{
         "England_Region": "Total",
-        "Has_Both_PSHE_and_RE": pshe_re_summary["Has_Both_PSHE_and_RE"].sum(),
-        "PSHE_SaaS_Only": pshe_re_summary["PSHE_SaaS_Only"].sum(),
-        "RE_Only": pshe_re_summary["RE_Only"].sum(),
+        "Has_Both_PSHE_and_RE": saas_summary["Has_Both_PSHE_and_RE"].sum(),
+        "PSHE_SaaS_Only": saas_summary["PSHE_SaaS_Only"].sum(),
+        "RE_SaaS_Only": saas_summary["RE_SaaS_Only"].sum(),
     }])
-    pshe_re_summary = pd.concat([pshe_re_summary, totals], ignore_index=True)
+    saas_summary = pd.concat([saas_summary, totals], ignore_index=True)
 
-    # Display the Additional Table with compact styling
-    st.subheader("PSHE and RE Relationship by Region")
+    # Display the SaaS Breakdown Table with compact styling
+    st.subheader("PSHE and RE SaaS Breakdown by Region")
     st.dataframe(
-        pshe_re_summary.style
+        saas_summary.style
             .set_properties(**{
                 'text-align': 'center',
                 'font-size': '9pt',      # Smaller font size for compactness
@@ -384,7 +384,6 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
         use_container_width=True,
         hide_index=True  # Hide the index column for a cleaner appearance
     )
-
 
     # Display the Additional Table with compact styling
     st.subheader("PSHE and RE Relationship by Region")
