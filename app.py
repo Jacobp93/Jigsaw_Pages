@@ -314,6 +314,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     )
     st.plotly_chart(fig_count_region)
 
+
 # Assuming 'df' is your DataFrame
     with st.expander("3. Summary Table", expanded=False):
     # Group by region and compute metrics
@@ -335,21 +336,18 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
         })
     ).reset_index()
 
-
-
-
-# Append a Totals Row to the Summary Table
+    # Append a Totals Row to the Summary Table
     totals = pd.DataFrame([{
-    "England_Region": "Total",
-    "Total_SaaS": region_summary["Total_SaaS"].sum(),
-    "Total_Legacy": region_summary["Total_Legacy"].sum(),
-    "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
-    "PSHE_Legacy": region_summary["PSHE_Legacy"].sum(),
-    "RE_SaaS": region_summary["RE_SaaS"].sum(),
-    "RE_Legacy": region_summary["RE_Legacy"].sum(),
+        "England_Region": "Total",
+        "Total_SaaS": region_summary["Total_SaaS"].sum(),
+        "Total_Legacy": region_summary["Total_Legacy"].sum(),
+        "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
+        "PSHE_Legacy": region_summary["PSHE_Legacy"].sum(),
+        "RE_SaaS": region_summary["RE_SaaS"].sum(),
+        "RE_Legacy": region_summary["RE_Legacy"].sum(),
     }])
     region_summary = pd.concat([region_summary, totals], ignore_index=True)
-    
+
     # Display the Summary Table with compact styling
     st.subheader("Summary Table by Region")
     st.dataframe(
@@ -365,7 +363,6 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
         use_container_width=True,
         hide_index=True  # Hide the index column for a cleaner appearance
     )
-    
 
 # Display the Summary Table with compact styling
     st.subheader("Summary Table by Region")
