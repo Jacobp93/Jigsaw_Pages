@@ -1,4 +1,5 @@
 import streamlit as st
+import requests 
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 import numpy as np
@@ -7,7 +8,7 @@ import pyodbc as db
 import plotly.express as px
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
-import requests 
+
 
 # Extract SQL configuration
 sql_server = st.secrets["sql"]["SQL_SERVER"]
