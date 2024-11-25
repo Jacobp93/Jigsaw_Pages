@@ -319,19 +319,21 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     # Group by region and compute metrics
         region_summary = df.groupby("England_Region").apply(
         lambda group: pd.Series({
-            # Total SaaS: Count rows where either PSHE or RE is SaaS (no double counting)
-            "Total_SaaS": ((group["PSHE_Customer_Type"] == "SaaS") | (group["RE_Customer_Type"] == "SaaS")).sum(),
+            # Total SaaS: Count rows where either PSHE or RE is SaaS (no double counting, excluding blanks)
+            "Total_SaaS": ((group["PSHE_Customer_Type"].fillna("") == "SaaS") | 
+                           (group["RE_Customer_Type"].fillna("") == "SaaS")).sum(),
 
-            # Total Legacy: Count rows where either PSHE or RE is Legacy (no double counting)
-            "Total_Legacy": ((group["PSHE_Customer_Type"] == "Legacy") | (group["RE_Customer_Type"] == "Legacy")).sum(),
+            # Total Legacy: Count rows where either PSHE or RE is Legacy (no double counting, excluding blanks)
+            "Total_Legacy": ((group["PSHE_Customer_Type"].fillna("") == "Legacy") | 
+                             (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
 
-            # Separate counts for PSHE SaaS and Legacy
-            "PSHE_SaaS": (group["PSHE_Customer_Type"] == "SaaS").sum(),
-            "PSHE_Legacy": (group["PSHE_Customer_Type"] == "Legacy").sum(),
+            # Separate counts for PSHE SaaS and Legacy (excluding blanks)
+            "PSHE_SaaS": (group["PSHE_Customer_Type"].fillna("") == "SaaS").sum(),
+            "PSHE_Legacy": (group["PSHE_Customer_Type"].fillna("") == "Legacy").sum(),
 
-            # Separate counts for RE SaaS and Legacy
-            "RE_SaaS": (group["RE_Customer_Type"] == "SaaS").sum(),
-            "RE_Legacy": (group["RE_Customer_Type"] == "Legacy").sum(),
+            # Separate counts for RE SaaS and Legacy (excluding blanks)
+            "RE_SaaS": (group["RE_Customer_Type"].fillna("") == "SaaS").sum(),
+            "RE_Legacy": (group["RE_Customer_Type"].fillna("") == "Legacy").sum(),
         })
     ).reset_index()
 
@@ -362,6 +364,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
         use_container_width=True,
         hide_index=True  # Hide the index column for a cleaner appearance
     )
+
 
 # Subplots for Total SaaS and Total Legacy by Region with PSHE and RE breakdowns
     fig = make_subplots(
