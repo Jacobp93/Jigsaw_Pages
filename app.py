@@ -342,7 +342,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 # Append a Totals Row to the Summary Table
     totals = pd.DataFrame([{
     "England_Region": "Total",
-    "Total_SaaS": region_summary["Total_SaaS"].sum(),
+    "Total SaaS": region_summary["Total_SaaS"].sum(),
     "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
     "RE_SaaS": region_summary["RE_SaaS"].sum(),
     "Total_Legacy": region_summary["Total_Legacy"].sum(),
