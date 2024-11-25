@@ -222,59 +222,40 @@ def dashboard_page():
     # Establish connection to database
     conn = establish_first_db_connection()
 
-    # SQL Query to retrieve data
+    # SQL Query
     query = """
-SELECT id, 
-       property_name, 
-       property_local_authority_reporting_ AS Local_Authority, 
-       property_region_dfe_ AS England_Region,
-       property_customer_type AS PSHE_Customer_Type, 
-       property_customer_type_Re AS RE_Customer_Type,
-       property_phaseofeducation_dfe_ AS School_Type,
-       property_establishmenttypegroup_dfe_,
-       property_longitude as longitude,
-       property_latitude as latitude
-FROM [_hubspot].[company]
-WHERE (property_customer_type IS NOT NULL AND property_customer_type != '') 
-   OR (property_customer_type_Re IS NOT NULL AND property_customer_type_Re != '')
-  -- AND property_phaseofeducation_dfe_ = 'Primary'
-    AND is_deleted = 0
-
-
+    SELECT id, property_name, property_local_authority_reporting_ AS Local_Authority, 
+           property_region_dfe_ AS England_Region, property_customer_type AS PSHE_Customer_Type, 
+           property_customer_type_Re AS RE_Customer_Type, property_phaseofeducation_dfe_ AS School_Type,
+           property_establishmenttypegroup_dfe_, property_longitude as longitude, property_latitude as latitude
+    FROM [_hubspot].[company]
+    WHERE (property_customer_type IS NOT NULL AND property_customer_type != '') 
+       OR (property_customer_type_Re IS NOT NULL AND property_customer_type_Re != '')
+       AND is_deleted = 0
     """
-    
+
+    # Fetch data
     try:
-            df = pd.read_sql(query, conn)
-    except db.Error as e:
+        df = pd.read_sql(query, conn)
+    except Exception as e:
         st.error(f"Error running query: {e}")
         st.stop()
+    finally:
+        conn.close()
 
-
-
-    conn.close()
-
-   # List of regions to exclude
+    # Initial global filtering
     regions_to_exclude = [
-        "Lancashire and West Yorkshire,", 
-        "North of England,", 
-        "North-West London and South-Central England,", 
-        "South-West England,", 
-        "West Midlands,",
-        "South-East England and South London,",
-        ""
+        "Lancashire and West Yorkshire,", "North of England,", 
+        "North-West London and South-Central England,", "South-West England,", 
+        "West Midlands,", "South-East England and South London,", ""
     ]
-
-    # Filter out unwanted regions from the DataFrame
     df = df[~df['England_Region'].isin(regions_to_exclude)]
 
-
+    # Sidebar Filters
     st.sidebar.subheader("Filters")
-
-    # Multi-select for regions without "All" option
     england_region_options = sorted(df['England_Region'].dropna().unique())
     selected_regions = st.sidebar.multiselect("Select England Regions", england_region_options, default=england_region_options)
 
-    # Other filters for PSHE Customer Type, RE Customer Type, and School Type
     pshe_customer_type_options = ["All"] + list(df['PSHE_Customer_Type'].dropna().unique())
     pshe_customer_type = st.sidebar.selectbox("Filter by PSHE Customer Type", pshe_customer_type_options)
 
@@ -284,162 +265,116 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     school_type_options = ["All"] + list(df['School_Type'].dropna().unique())
     school_type = st.sidebar.selectbox("Filter by School Type", school_type_options)
 
-    # Filtered Data based on selected options
+    # Apply Filters to Create `filtered_data`
+    filtered_data = df.copy()
     if selected_regions:
-        filtered_data = df[df['England_Region'].isin(selected_regions)]
-    else:
-        # If no region is selected, show all data
-        filtered_data = df
+        filtered_data = filtered_data[filtered_data['England_Region'].isin(selected_regions)]
 
-    # Further filtering based on other sidebar selections
     filtered_data = filtered_data[
         ((filtered_data['PSHE_Customer_Type'] == pshe_customer_type) | (pshe_customer_type == "All")) &
         ((filtered_data['RE_Customer_Type'] == re_customer_type) | (re_customer_type == "All")) &
         ((filtered_data['School_Type'] == school_type) | (school_type == "All"))
     ]
 
-    # 1. Total Customer Count Metric
-    total_customers = len(filtered_data)
-    st.metric("Total Customers", total_customers)
+    # Ensure `filtered_data` is accessible to expanders
+    st.metric("Total Customers", len(filtered_data))
 
-    # 2. Customer Count by Region Bar Chart
-    customer_count_by_region = filtered_data['England_Region'].value_counts()
-    fig_count_region = px.bar(
-        customer_count_by_region,
-        x=customer_count_by_region.index,
-        y=customer_count_by_region.values,
-        title="Customer Count by Region",
-        labels={"x": "Region", "y": "Customer Count"}
-    )
-    st.plotly_chart(fig_count_region)
-
-
-   # Expander 1: Summary Table
+    # Expander 1: Summary Table
     with st.expander("3. Summary Table", expanded=False):
-    # Group by region and compute metrics
-        region_summary = df.groupby("England_Region").apply(
-    lambda group: pd.Series({
-            "Total_SaaS": ((group["PSHE_Customer_Type"].fillna("") == "SaaS") | 
-                           (group["RE_Customer_Type"].fillna("") == "SaaS")).sum(),
-            "Total_Legacy": ((group["PSHE_Customer_Type"].fillna("") == "Legacy") | 
-                             (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
-            "PSHE_SaaS": (group["PSHE_Customer_Type"].fillna("") == "SaaS").sum(),
-            "PSHE_Legacy": (group["PSHE_Customer_Type"].fillna("") == "Legacy").sum(),
-            "RE_SaaS": (group["RE_Customer_Type"].fillna("") == "SaaS").sum(),
-            "RE_Legacy": (group["RE_Customer_Type"].fillna("") == "Legacy").sum(),
-        })
-    ).reset_index()
-
-    # Append a Totals Row to the Summary Table
-    totals = pd.DataFrame([{
-        "England_Region": "Total",
-        "Total_SaaS": region_summary["Total_SaaS"].sum(),
-        "Total_Legacy": region_summary["Total_Legacy"].sum(),
-        "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
-        "PSHE_Legacy": region_summary["PSHE_Legacy"].sum(),
-        "RE_SaaS": region_summary["RE_SaaS"].sum(),
-        "RE_Legacy": region_summary["RE_Legacy"].sum(),
-    }])
-    region_summary = pd.concat([region_summary, totals], ignore_index=True)
-
-    # Display the Summary Table
-    st.subheader("Summary Table by Region")
-    st.dataframe(
-        region_summary.style
-            .set_properties(**{
-                'text-align': 'center',
-                'font-size': '9pt',
-                'padding': '0px'
+        region_summary = filtered_data.groupby("England_Region").apply(
+            lambda group: pd.Series({
+                "Total_SaaS": ((group["PSHE_Customer_Type"].fillna("") == "SaaS") | 
+                               (group["RE_Customer_Type"].fillna("") == "SaaS")).sum(),
+                "Total_Legacy": ((group["PSHE_Customer_Type"].fillna("") == "Legacy") | 
+                                 (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
+                "PSHE_SaaS": (group["PSHE_Customer_Type"].fillna("") == "SaaS").sum(),
+                "PSHE_Legacy": (group["PSHE_Customer_Type"].fillna("") == "Legacy").sum(),
+                "RE_SaaS": (group["RE_Customer_Type"].fillna("") == "SaaS").sum(),
+                "RE_Legacy": (group["RE_Customer_Type"].fillna("") == "Legacy").sum(),
             })
-            .set_table_styles([
-                {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}
-            ]),
-        use_container_width=True,
-        hide_index=True
-    )
+        ).reset_index()
 
-# Expander 2: PSHE and RE SaaS Breakdown and Visualizations
-    with st.expander("4. PSHE and RE SaaS Breakdown Table and Visualizations", expanded=False):
-    # Group by region and compute SaaS breakdown metrics
-        saas_summary = df.groupby("England_Region").apply(
-        lambda group: pd.Series({
-            "Has_Both_PSHE_and_RE": (
-                (group["PSHE_Customer_Type"] == "SaaS") & (group["RE_Customer_Type"] == "SaaS")
-            ).sum(),
-            "PSHE_SaaS_Only": (
-                (group["PSHE_Customer_Type"] == "SaaS") & 
-                ((group["RE_Customer_Type"].isna()) | 
-                 (group["RE_Customer_Type"] == "") | 
-                 (group["RE_Customer_Type"] == "Legacy"))
-            ).sum(),
-            "RE_SaaS_Only": (
-                (group["RE_Customer_Type"] == "SaaS") & 
-                ((group["PSHE_Customer_Type"].isna()) | 
-                 (group["PSHE_Customer_Type"] == "") | 
-                 (group["PSHE_Customer_Type"] == "Legacy"))
-            ).sum(),
-        })
-    ).reset_index()
+        # Append a Totals Row to the Summary Table
+        totals = pd.DataFrame([{
+            "England_Region": "Total",
+            "Total_SaaS": region_summary["Total_SaaS"].sum(),
+            "Total_Legacy": region_summary["Total_Legacy"].sum(),
+            "PSHE_SaaS": region_summary["PSHE_SaaS"].sum(),
+            "PSHE_Legacy": region_summary["PSHE_Legacy"].sum(),
+            "RE_SaaS": region_summary["RE_SaaS"].sum(),
+            "RE_Legacy": region_summary["RE_Legacy"].sum(),
+        }])
+        region_summary = pd.concat([region_summary, totals], ignore_index=True)
 
-    # Append a Totals Row to the SaaS Breakdown Table
-    totals = pd.DataFrame([{
-        "England_Region": "Total",
-        "Has_Both_PSHE_and_RE": saas_summary["Has_Both_PSHE_and_RE"].sum(),
-        "PSHE_SaaS_Only": saas_summary["PSHE_SaaS_Only"].sum(),
-        "RE_SaaS_Only": saas_summary["RE_SaaS_Only"].sum(),
-    }])
-    saas_summary = pd.concat([saas_summary, totals], ignore_index=True)
+        st.dataframe(region_summary)
 
-    # Display the SaaS Breakdown Table
-    st.subheader("PSHE and RE SaaS Breakdown by Region")
-    st.dataframe(
-        saas_summary.style
-            .set_properties(**{
-                'text-align': 'center',
-                'font-size': '9pt',
-                'padding': '0px'
+    # Expander 2: SaaS Breakdown
+    with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
+        saas_summary = filtered_data.groupby("England_Region").apply(
+            lambda group: pd.Series({
+                "Has_Both_PSHE_and_RE": (
+                    (group["PSHE_Customer_Type"] == "SaaS") & (group["RE_Customer_Type"] == "SaaS")
+                ).sum(),
+                "PSHE_SaaS_Only": (
+                    (group["PSHE_Customer_Type"] == "SaaS") & 
+                    ((group["RE_Customer_Type"].isna()) | 
+                     (group["RE_Customer_Type"] == "") | 
+                     (group["RE_Customer_Type"] == "Legacy"))
+                ).sum(),
+                "RE_SaaS_Only": (
+                    (group["RE_Customer_Type"] == "SaaS") & 
+                    ((group["PSHE_Customer_Type"].isna()) | 
+                     (group["PSHE_Customer_Type"] == "") | 
+                     (group["PSHE_Customer_Type"] == "Legacy"))
+                ).sum(),
             })
-            .set_table_styles([
-                {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}
-            ]),
-        use_container_width=True,
-        hide_index=True
-    )
+        ).reset_index()
 
-    # Subplots for Total SaaS and Legacy with PSHE and RE breakdowns
-    fig = make_subplots(
-        rows=1, cols=2,
-        subplot_titles=("RE SaaS vs RE Legacy", "PSHE SaaS vs PSHE Legacy")
-    )
+        # Append a Totals Row to the SaaS Breakdown Table
+        totals = pd.DataFrame([{
+            "England_Region": "Total",
+            "Has_Both_PSHE_and_RE": saas_summary["Has_Both_PSHE_and_RE"].sum(),
+            "PSHE_SaaS_Only": saas_summary["PSHE_SaaS_Only"].sum(),
+            "RE_SaaS_Only": saas_summary["RE_SaaS_Only"].sum(),
+        }])
+        saas_summary = pd.concat([saas_summary, totals], ignore_index=True)
 
-    # RE SaaS vs RE Legacy
-    fig.add_trace(
-        go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["RE_Legacy"][:-1], name="RE Legacy"),
-        row=1, col=1
-    )
-    fig.add_trace(
-        go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["RE_SaaS"][:-1], name="RE SaaS"),
-        row=1, col=1
-    )
+        st.dataframe(saas_summary)
 
-    # PSHE SaaS vs PSHE Legacy
-    fig.add_trace(
-        go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["PSHE_Legacy"][:-1], name="PSHE Legacy"),
-        row=1, col=2
-    )
-    fig.add_trace(
-        go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["PSHE_SaaS"][:-1], name="PSHE SaaS"),
-        row=1, col=2
-    )
+        # Subplots for SaaS and Legacy with PSHE and RE breakdowns
+        fig = make_subplots(
+            rows=1, cols=2,
+            subplot_titles=("RE SaaS vs RE Legacy", "PSHE SaaS vs PSHE Legacy")
+        )
 
-    # Update layout and display the chart
-    fig.update_layout(
-        height=500,  # Adjust chart height
-        width=900,   # Adjust chart width
-        title_text="Customer Type Distribution by Region with PSHE and RE Breakdown",
-        showlegend=True
-    )
-    st.plotly_chart(fig, use_container_width=False)
+        # RE SaaS vs RE Legacy
+        fig.add_trace(
+            go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["RE_Legacy"][:-1], name="RE Legacy"),
+            row=1, col=1
+        )
+        fig.add_trace(
+            go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["RE_SaaS"][:-1], name="RE SaaS"),
+            row=1, col=1
+        )
+
+        # PSHE SaaS vs PSHE Legacy
+        fig.add_trace(
+            go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["PSHE_Legacy"][:-1], name="PSHE Legacy"),
+            row=1, col=2
+        )
+        fig.add_trace(
+            go.Bar(x=region_summary["England_Region"][:-1], y=region_summary["PSHE_SaaS"][:-1], name="PSHE SaaS"),
+            row=1, col=2
+        )
+
+        fig.update_layout(
+            height=500,  # Adjust chart height
+            width=900,   # Adjust chart width
+            title_text="Customer Type Distribution by Region with PSHE and RE Breakdown",
+            showlegend=True
+        )
+        st.plotly_chart(fig, use_container_width=False)
+
 
 
 
