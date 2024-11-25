@@ -337,7 +337,6 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
         })
     ).reset_index()
         
-
 # Additional Table: PSHE and RE SaaS Breakdown
     with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
     # Group by region and compute metrics for specific criteria
@@ -348,14 +347,20 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
                 (group["PSHE_Customer_Type"] == "SaaS") & (group["RE_Customer_Type"] == "SaaS")
             ).sum(),
 
-            # Customers with "SaaS" only in PSHE (and no RE)
+            # Customers with "SaaS" in PSHE and RE is NULL, blank, or Legacy
             "PSHE_SaaS_Only": (
-                (group["PSHE_Customer_Type"] == "SaaS") & group["RE_Customer_Type"].isna()
+                (group["PSHE_Customer_Type"] == "SaaS") & 
+                ((group["RE_Customer_Type"].isna()) | 
+                 (group["RE_Customer_Type"] == "") | 
+                 (group["RE_Customer_Type"] == "Legacy"))
             ).sum(),
 
-            # Customers with "SaaS" only in RE (and no PSHE)
+            # Customers with "SaaS" in RE and PSHE is NULL, blank, or Legacy
             "RE_SaaS_Only": (
-                (group["RE_Customer_Type"] == "SaaS") & group["PSHE_Customer_Type"].isna()
+                (group["RE_Customer_Type"] == "SaaS") & 
+                ((group["PSHE_Customer_Type"].isna()) | 
+                 (group["PSHE_Customer_Type"] == "") | 
+                 (group["PSHE_Customer_Type"] == "Legacy"))
             ).sum(),
         })
     ).reset_index()
@@ -384,6 +389,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
         use_container_width=True,
         hide_index=True  # Hide the index column for a cleaner appearance
     )
+
 
 
     # Append a Totals Row to the Summary Table
