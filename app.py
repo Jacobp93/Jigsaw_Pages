@@ -17,7 +17,7 @@ sql_uid = st.secrets["sql"]["SQL_UID"]
 sql_pass = st.secrets["sql"]["SQL_PASS"]
 
 # Extract API configuration
-opencage_api_key = st.secrets["api"]["OPENCAGE_API_KEY"]
+geolocator = st.secrets["api"]["OPENCAGE_API_KEY"]
 
 # Extract connection driver
 sql_driver = st.secrets["connection"]["driver"]
