@@ -336,6 +336,55 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
             "RE_Legacy": (group["RE_Customer_Type"].fillna("") == "Legacy").sum(),
         })
     ).reset_index()
+        
+
+# Additional Table: PSHE and RE Relationship
+    with st.expander("4. PSHE and RE Relationship Table", expanded=False):
+    # Group by region and compute metrics for specific criteria
+        pshe_re_summary = df.groupby("England_Region").apply(
+        lambda group: pd.Series({
+            # Count customers that have both PSHE and RE (any type)
+            "Has_Both_PSHE_and_RE": (
+                group["PSHE_Customer_Type"].notna() & group["RE_Customer_Type"].notna()
+            ).sum(),
+
+            # Count customers with only PSHE SaaS and no RE
+            "PSHE_SaaS_Only": (
+                (group["PSHE_Customer_Type"] == "SaaS") & group["RE_Customer_Type"].isna()
+            ).sum(),
+
+            # Count customers with any RE type but no PSHE
+            "RE_Only": (
+                group["RE_Customer_Type"].notna() & group["PSHE_Customer_Type"].isna()
+            ).sum(),
+        })
+    ).reset_index()
+
+    # Append a Totals Row to the Additional Table
+    totals = pd.DataFrame([{
+        "England_Region": "Total",
+        "Has_Both_PSHE_and_RE": pshe_re_summary["Has_Both_PSHE_and_RE"].sum(),
+        "PSHE_SaaS_Only": pshe_re_summary["PSHE_SaaS_Only"].sum(),
+        "RE_Only": pshe_re_summary["RE_Only"].sum(),
+    }])
+    pshe_re_summary = pd.concat([pshe_re_summary, totals], ignore_index=True)
+
+    # Display the Additional Table with compact styling
+    st.subheader("PSHE and RE Relationship by Region")
+    st.dataframe(
+        pshe_re_summary.style
+            .set_properties(**{
+                'text-align': 'center',
+                'font-size': '9pt',      # Smaller font size for compactness
+                'padding': '0px'         # Remove padding for a compact look
+            })
+            .set_table_styles([
+                {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
+            ]),
+        use_container_width=True,
+        hide_index=True  # Hide the index column for a cleaner appearance
+    )
+
 
     # Append a Totals Row to the Summary Table
     totals = pd.DataFrame([{
