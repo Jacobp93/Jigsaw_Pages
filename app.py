@@ -65,7 +65,8 @@ def school_nearest_neighbor_page():
     st.write("Find the top 5 closest schools by entering a postcode.")
     
     conn = establish_first_db_connection()
-    geolocator = OpenCage(api_key=("OPENCAGE_API_KEY"))
+    geolocator = OpenCage(api_key=st.secrets["api"]["OPENCAGE_API_KEY"])
+
 
     @st.cache_data
     def get_geocode(postcode):
