@@ -314,18 +314,20 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     )
     st.plotly_chart(fig_count_region)
 
-# Assuming 'df' is your DataFrame
-    with st.expander("3. Summary Table", expanded=False):
-    # Group by region and compute metrics
-        region_summary = df.groupby("England_Region").apply(
-        lambda group: pd.Series({
+
+    if df.empty:
+        st.warning("The DataFrame is empty or not loaded properly!")
+    else:
+        with st.expander("3. Summary Table", expanded=False):
+            region_summary = df.groupby("England_Region").apply(
+            lambda group: pd.Series({
             # Total SaaS: Count rows where either PSHE or RE is SaaS (no double counting, excluding blanks)
             "Total_SaaS": ((group["PSHE_Customer_Type"].fillna("") == "SaaS") | 
                         (group["RE_Customer_Type"].fillna("") == "SaaS")).sum(),
 
             # Total Legacy: Count rows where either PSHE or RE is Legacy (no double counting, excluding blanks)
             "Total_Legacy": ((group["PSHE_Customer_Type"].fillna("") == "Legacy") | 
-                            (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
+                             (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
 
             # Separate counts for PSHE SaaS and Legacy (excluding blanks)
             "PSHE_SaaS": (group["PSHE_Customer_Type"].fillna("") == "SaaS").sum(),
