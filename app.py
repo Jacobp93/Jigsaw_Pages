@@ -268,7 +268,6 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     df = df[~df['England_Region'].isin(regions_to_exclude)]
 
 
-# Sidebar filters
     st.sidebar.subheader("Filters")
 
     # Multi-select for regions without "All" option
