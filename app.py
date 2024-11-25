@@ -407,9 +407,8 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     )
 
 
-# Display the chart
-    st.plotly_chart(fig)
 
+    st.plotly_chart(fig, use_container_width=True)
 
 
     # Additional Insights and Visuals
