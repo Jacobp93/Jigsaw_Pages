@@ -323,11 +323,11 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
             lambda group: pd.Series({
             # Total SaaS: Count rows where either PSHE or RE is SaaS (no double counting, excluding blanks)
             "Total_SaaS": ((group["PSHE_Customer_Type"].fillna("") == "SaaS") | 
-                        (group["RE_Customer_Type"].fillna("") == "SaaS")).sum(),
+                            (group["RE_Customer_Type"].fillna("") == "SaaS")).sum(),
 
             # Total Legacy: Count rows where either PSHE or RE is Legacy (no double counting, excluding blanks)
             "Total_Legacy": ((group["PSHE_Customer_Type"].fillna("") == "Legacy") | 
-                             (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
+                            (group["RE_Customer_Type"].fillna("") == "Legacy")).sum(),
 
             # Separate counts for PSHE SaaS and Legacy (excluding blanks)
             "PSHE_SaaS": (group["PSHE_Customer_Type"].fillna("") == "SaaS").sum(),
@@ -336,8 +336,8 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
             # Separate counts for RE SaaS and Legacy (excluding blanks)
             "RE_SaaS": (group["RE_Customer_Type"].fillna("") == "SaaS").sum(),
             "RE_Legacy": (group["RE_Customer_Type"].fillna("") == "Legacy").sum(),
-        })
-    ).reset_index()
+            })
+        ).reset_index()
         
 # Additional Table: PSHE and RE SaaS Breakdown
     with st.expander("4. PSHE and RE SaaS Breakdown Table", expanded=False):
