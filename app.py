@@ -371,8 +371,7 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     fig = make_subplots(
     rows=2, cols=2,
     subplot_titles=(
-        "Total SaaS by Region", "Total Legacy by Region",
-        "PSHE vs RE SaaS Breakdown", "PSHE vs RE Legacy Breakdown"
+        "PSHE SaaS vs PSHE Legacy", "RE SaaS vs RE Legacy"
     )
     )
 
