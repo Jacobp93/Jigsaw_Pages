@@ -398,12 +398,14 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
 
 
 
-# Update layout for the subplots
     fig.update_layout(
-    height=500, width=900, 
+    height=500,  # Adjust chart height
+    width=900,   # Adjust chart width
     title_text="Customer Type Distribution by Region with PSHE and RE Breakdown",
-    showlegend=True
+    showlegend=True,
+    margin=dict(l=20, r=20, t=50, b=20)  # Minimize margins: left, right, top, bottom
     )
+
 
 # Display the chart
     st.plotly_chart(fig)
