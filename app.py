@@ -22,17 +22,20 @@ opencage_api_key = st.secrets["api"]["OPENCAGE_API_KEY"]
 # Extract connection driver
 sql_driver = st.secrets["connection"]["driver"]
 
+import streamlit as st
+import pyodbc as db
+
 # Define connection functions for two different databases
-def establish_first_db_connection():
+def establish_first_db_connection(driver, SQL_SERVER, SQL_DATABASE_1, SQL_UID, SQL_PASS):
     """Establish a connection to the first database."""
     try:
         conn = db.connect(
-            f'DRIVER={{{driver}}};'
-            f'SERVER={SQL_SERVER};'
-            f'DATABASE={SQL_DATABASE_1};'
-            f'UID={SQL_UID};'
-            f'PWD={SQL_PASS};'
-            'Trusted_Connection=no;'
+            f"DRIVER={{{driver}}};"
+            f"SERVER={SQL_SERVER};"
+            f"DATABASE={SQL_DATABASE_1};"
+            f"UID={SQL_UID};"
+            f"PWD={SQL_PASS};"
+            "Trusted_Connection=no;"
         )
         st.success("Successfully connected to the first database!")
         return conn
@@ -40,16 +43,16 @@ def establish_first_db_connection():
         st.error(f"Error connecting to the first database: {e}")
         st.stop()
 
-def establish_second_db_connection():
+def establish_second_db_connection(driver, SQL_SERVER, SQL_DATABASE_2, SQL_UID, SQL_PASS):
     """Establish a connection to the second database."""
     try:
         conn = db.connect(
-            f'DRIVER={{{driver}}};'
-            f'SERVER={SQL_SERVER};'
-            f'DATABASE={SQL_DATABASE_2};'
-            f'UID={SQL_UID};'
-            f'PWD={SQL_PASS};'
-            'Trusted_Connection=no;'
+            f"DRIVER={{{driver}}};"
+            f"SERVER={SQL_SERVER};"
+            f"DATABASE={SQL_DATABASE_2};"
+            f"UID={SQL_UID};"
+            f"PWD={SQL_PASS};"
+            "Trusted_Connection=no;"
         )
         st.success("Successfully connected to the second database!")
         return conn
