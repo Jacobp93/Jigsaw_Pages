@@ -314,11 +314,10 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
     )
     st.plotly_chart(fig_count_region)
 
-
 # Assuming 'df' is your DataFrame
-    with st.expander("3. Summary Table", expanded=False):
+with st.expander("3. Summary Table", expanded=False):
     # Group by region and compute metrics
-        region_summary = df.groupby("England_Region").apply(
+    region_summary = df.groupby("England_Region").apply(
         lambda group: pd.Series({
             # Total SaaS: Count rows where either PSHE or RE is SaaS (no double counting)
             "Total_SaaS": ((group["PSHE_Customer_Type"] == "SaaS") | (group["RE_Customer_Type"] == "SaaS")).sum(),
@@ -362,22 +361,6 @@ WHERE (property_customer_type IS NOT NULL AND property_customer_type != '')
             ]),
         use_container_width=True,
         hide_index=True  # Hide the index column for a cleaner appearance
-    )
-
-# Display the Summary Table with compact styling
-    st.subheader("Summary Table by Region")
-    st.dataframe(
-    region_summary.style
-        .set_properties(**{
-            'text-align': 'center',
-            'font-size': '9pt',      # Smaller font size for compactness
-            'padding': '0px'         # Remove padding for a compact look
-        })
-        .set_table_styles([
-            {'selector': 'thead th', 'props': [('font-size', '9pt'), ('padding', '0px')]}  # Compact header style
-        ]),
-    use_container_width=True,
-    hide_index=True  # Hide the index column for a cleaner appearance
     )
 
 # Subplots for Total SaaS and Total Legacy by Region with PSHE and RE breakdowns
